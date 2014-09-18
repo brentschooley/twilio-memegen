@@ -1,2 +1,2 @@
-require './memegen'
+require './catgif'
 run Sinatra::Application

@@ -30,12 +30,12 @@ post '/phone/sms' do
 
   message = params[:Body]
 
-  if message.casecmp "list"
-    twiml = Twilio::TwiML::Response.new do |r|
-      r.Message "Supported memes: ___ all the ___, what if i told you ___, brace yourselves ____, ___ but that's none of my business, ____ all the ____, ___ ain't nobody got time for that, ___ we're dealing with a badass over here, ___ aaaand it's gone"
-    end
-    return twiml.text
-  end
+  # if message.casecmp "list"
+  #   twiml = Twilio::TwiML::Response.new do |r|
+  #     r.Message "Supported memes: ___ all the ___, what if i told you ___, brace yourselves ____, ___ but that's none of my business, ____ all the ____, ___ ain't nobody got time for that, ___ we're dealing with a badass over here, ___ aaaand it's gone"
+  #   end
+  #   return twiml.text
+  # end
 
   meme_match = match_memes(message)
 

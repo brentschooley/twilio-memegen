@@ -1,0 +1,18 @@
+{
+  "name": "TwilioMemegen",
+  "description": "Generate memes from text messages using Twilio MMS",
+  "keywords": [
+    "ruby",
+    "sinatra",
+    "imgflip",
+    "twilio"
+  ],
+  "addons": [],
+  "repository": "https://github.com/brentschooley/twilio-memegen",
+  "env": {
+    "LANG": "en_US.UTF-8",
+    "RACK_ENV": "production",
+    "IMGFLIP_USERID": "imgflip_hubot",
+    "IMGFLIP_PASSWORD": "imgflip_hubot"
+  }
+}

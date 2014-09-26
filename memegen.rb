@@ -50,11 +50,14 @@ else
   username = ENV['IMGFLIP_USERID']
   password = ENV['IMGFLIP_PASSWORD']
 
-  if username.to_s.empty?
+  if username.nil? || username.empty?
     # Use defaults from imgflip open source hubot script if not set
     username = 'imgflip_hubot'
     password = 'imgflip_hubot'
   end
+
+  puts username
+  puts password
 
   response = Unirest.post "https://api.imgflip.com/caption_image",
        parameters:
@@ -65,6 +68,8 @@ else
           "text0" => meme_match[:top], 
           "text1" => meme_match[:bottom]
       }
+
+  puts response
 
   image_url = response.body['data']['url']
 end

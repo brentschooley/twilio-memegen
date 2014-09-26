@@ -28,58 +28,66 @@ end
 post '/memegen' do  
   content_type 'text/xml'
 
-message = params[:Body]
-message = message.downcase.strip
+  message = params[:Body]
+  message = message.downcase.strip
 
-if message.eql? "list"
-  twiml = Twilio::TwiML::Response.new do |r|
-    r.Message "Supported memes: ___ all the ___, what if i told you ___, brace yourselves ____, ___ but that's none of my business, ____ all the ____, ___ ain't nobody got time for that, ___ we're dealing with a badass over here, ___ aaaand it's gone"
-  end
-  return twiml.text
-end
+  if message.eql? "list"
+    twiml = Twilio::TwiML::Response.new do |r|
+      r.Message "Supported memes: ___ all the ___, what if i told you ___, brace yourselves ____, ___ but that's none of my business, ____ all the ____, ___ ain't nobody got time for that, ___ we're dealing with a badass over here, ___ aaaand it's gone"
+    end
 
-meme_match = match_memes(message)
-
-if meme_match.nil?
-  twiml = Twilio::TwiML::Response.new do |r|
-    r.Message "Sorry, I don't know that meme! Send 'list' to see a list of supported memes."
-  end
-  return twiml.text
-else
-  # Set these env vars if you want to use your own username/password
-  username = ENV['IMGFLIP_USERID']
-  password = ENV['IMGFLIP_PASSWORD']
-
-  if username.nil? || username.empty?
-    # Use defaults from imgflip open source hubot script if not set
-    username = 'imgflip_hubot'
-    password = 'imgflip_hubot'
+    return twiml.text
   end
 
-  puts "Username: #{username}"
-  puts "Password: #{password}"
+  meme_match = match_memes(message)
 
-  response = Unirest.post "https://api.imgflip.com/caption_image",
-       parameters:
-       {
-          "username" => username, 
-          "password" => password, 
-          "template_id" => meme_match[:id], 
-          "text0" => meme_match[:top], 
-          "text1" => meme_match[:bottom]
+  if meme_match.nil?
+    twiml = Twilio::TwiML::Response.new do |r|
+      r.Message "Sorry, I don't know that meme! Send 'list' to see a list of supported memes."
+    end
+
+    return twiml.text
+  else
+
+    # Set these env vars if you want to use your own username/password
+    username = ENV['IMGFLIP_USERID']
+    password = ENV['IMGFLIP_PASSWORD']
+
+    if username.nil? || username.empty?
+      # Use defaults from imgflip open source hubot script if not set
+      username = 'imgflip_hubot'
+      password = 'imgflip_hubot'
+    end
+
+    response = Unirest.post "https://api.imgflip.com/caption_image",
+      parameters:
+      {
+        "username" => username, 
+        "password" => password, 
+        "template_id" => meme_match[:id], 
+        "text0" => meme_match[:top], 
+        "text1" => meme_match[:bottom]
       }
 
-  puts "Response: #{response}"
+    if !response.nil? && response.body['success'] == true
+      image_url = response.body['data']['url']
+    else
+      error = response.body['error_message']
 
-  image_url = response.body['data']['url']
-end
+      twiml = Twilio::TwiML::Response.new do |r|
+          r.Message "Sorry, there was an error accessing the Imgflip API: #{error}"
+      end
 
-twiml = Twilio::TwiML::Response.new do |r|
-  r.Message do |m|
-    m.Media "#{image_url}"
-    m.Body "Here's your meme! Powered by Twilio MMS."
+      return twiml.text
+    end
   end
-end
+  
+  twiml = Twilio::TwiML::Response.new do |r|
+    r.Message do |m|
+      m.Media "#{image_url}"
+      m.Body "Here's your meme! Powered by Twilio MMS."
+    end
+  end
 
-twiml.text
+  return twiml.text
 end

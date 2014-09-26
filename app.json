@@ -12,7 +12,7 @@
   "env": {
     "LANG": "en_US.UTF-8",
     "RACK_ENV": "production",
-    "IMGFLIP_USERID": "imgflip_hubot",
-    "IMGFLIP_PASSWORD": "imgflip_hubot"
+    "IMGFLIP_USERID": "",
+    "IMGFLIP_PASSWORD": ""
   }
 }

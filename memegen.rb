@@ -25,7 +25,7 @@ def match_memes(message)
   end
 end
 
-post '/phone/sms' do  
+post '/memegen' do  
   content_type 'text/xml'
 
 message = params[:Body]

@@ -56,8 +56,8 @@ else
     password = 'imgflip_hubot'
   end
 
-  puts username
-  puts password
+  puts "Username: #{username}"
+  puts "Password: #{password}"
 
   response = Unirest.post "https://api.imgflip.com/caption_image",
        parameters:
@@ -69,7 +69,7 @@ else
           "text1" => meme_match[:bottom]
       }
 
-  puts response
+  puts "Response: #{response}"
 
   image_url = response.body['data']['url']
 end

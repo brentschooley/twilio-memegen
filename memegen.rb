@@ -2,6 +2,45 @@ require 'sinatra'
 require 'twilio-ruby'
 require 'unirest'
 
+def send_message(image_url, target)
+  account = ENV['TWILIO_ACCOUNT']
+  token = String.try_convert(ENV['TWILIO_TOKEN'])
+  from = ENV['TWILIO_NUMBER']
+
+  client = Twilio::REST::Client.new account, token
+
+  client.account.messages.create(
+  :from => from,
+  :to => target,
+  :body => "Here's your meme! Powered by Twilio MMS.",
+  :media_url => "#{image_url}"
+  )
+end
+
+def reply_to_message(image_url)
+  twiml = Twilio::TwiML::Response.new do |r|
+    r.Message do |m|
+      m.Media "#{image_url}"
+      m.Body "Here's your meme! Powered by Twilio MMS."
+    end
+  end
+
+  return twiml.text
+end
+
+
+def to_phone(number)
+  if number == nil
+    return ''
+  end
+
+  phone = "+" + number.gsub(/[-\s\(\)+a-zA-Z]/,'')
+  if phone.length == 12 || phone.length == 11
+    return phone
+  end
+  return ""
+end
+
 def match_memes(message)
   case message.downcase
   when /^(one does not simply)(.*)/
@@ -25,7 +64,7 @@ def match_memes(message)
   end
 end
 
-post '/memegen' do  
+post '/memegen' do
   content_type 'text/xml'
 
   message = params[:Body]
@@ -37,6 +76,13 @@ post '/memegen' do
     end
 
     return twiml.text
+  end
+
+  # Check if
+  case message.downcase
+  when /,\s?to:\s?(.*)/
+    target = to_phone($1.strip)
+    message = message.gsub(/,\s?to:\s?(.*)/,'')
   end
 
   meme_match = match_memes(message)
@@ -62,10 +108,10 @@ post '/memegen' do
     response = Unirest.post "https://api.imgflip.com/caption_image",
       parameters:
       {
-        "username" => username, 
-        "password" => password, 
-        "template_id" => meme_match[:id], 
-        "text0" => meme_match[:top], 
+        "username" => username,
+        "password" => password,
+        "template_id" => meme_match[:id],
+        "text0" => meme_match[:top],
         "text1" => meme_match[:bottom]
       }
 
@@ -81,12 +127,11 @@ post '/memegen' do
       return twiml.text
     end
   end
-  
-  twiml = Twilio::TwiML::Response.new do |r|
-    r.Message do |m|
-      m.Media "#{image_url}"
-      m.Body "Here's your meme! Powered by Twilio MMS."
-    end
+
+  if target == nil
+    return reply_to_message(image_url)
+  else
+    send_message(image_url, target)
   end
 
   return twiml.text

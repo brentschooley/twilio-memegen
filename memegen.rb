@@ -91,7 +91,7 @@ post '/memegen' do
   end
 
   if target != nil
-    if Phonelib.valid_for_country? target, 'us' || Phonelib.valid_for_country? target, 'ca'
+    if Phonelib.valid_for_country?(target, 'us') || Phonelib.valid_for_country?(target, 'ca')
       account = ENV['TWILIO_ACCOUNT']
       token = String.try_convert(ENV['TWILIO_TOKEN'])
       from = ENV['TWILIO_NUMBER']
@@ -100,7 +100,7 @@ post '/memegen' do
 
       client.account.messages.create(
       :from => from,
-      :to => target,
+      :to => Phonelib.parse(target).international,
       :body => "Here's your meme! Powered by Twilio MMS.",
       :media_url => "#{image_url}"
       )

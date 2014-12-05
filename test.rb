@@ -14,9 +14,17 @@ class FirstTest < Test::Unit::TestCase
   end
 
   def test_phonelib
-    phone = Phonelib.parse('1(555) 555-5555    ')
+    phone = Phonelib.parse('1(555) 555 5555    ')
     assert_equal('+15555555555',phone.international)
-    phone = Phonelib.parse('a').international
-    assert_equal(nil, phone)
+
+    puts Phonelib.valid?(phone.international)
+
+    phone = Phonelib.parse('a')
+    assert_equal("+", phone.international)
+
+    puts Phonelib.valid?(phone.international)
+    puts Phonelib.valid_for_country?('14045215555     ', 'us')
+
+    #assert_equal(true, Phonelib.valid_for_country?('123456789', 'us'))
   end
 end

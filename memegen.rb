@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'twilio-ruby'
 require 'unirest'
+require 'phonelib'
 
 def match_memes(message)
   case message.downcase
@@ -90,18 +91,27 @@ post '/memegen' do
   end
 
   if target != nil
-    account = ENV['TWILIO_ACCOUNT']
-    token = String.try_convert(ENV['TWILIO_TOKEN'])
-    from = ENV['TWILIO_NUMBER']
+    if Phonelib.valid_for_country? target, 'us' || Phonelib.valid_for_country? target, 'ca'
+      account = ENV['TWILIO_ACCOUNT']
+      token = String.try_convert(ENV['TWILIO_TOKEN'])
+      from = ENV['TWILIO_NUMBER']
 
-    client = Twilio::REST::Client.new account, token
+      client = Twilio::REST::Client.new account, token
 
-    client.account.messages.create(
-    :from => from,
-    :to => target,
-    :body => "Here's your meme! Powered by Twilio MMS.",
-    :media_url => "#{image_url}"
-    )
+      client.account.messages.create(
+      :from => from,
+      :to => target,
+      :body => "Here's your meme! Powered by Twilio MMS.",
+      :media_url => "#{image_url}"
+      )
+    else
+      twiml = Twilio::TwiML::Response.new do |r|
+        r.Message do |m|
+          m.Media "#{image_url}"
+          m.Body "Here's your meme. Powered by Twilio MMS. The phone number provided was invalid."
+        end
+      end
+    end
   else
     twiml = Twilio::TwiML::Response.new do |r|
       r.Message do |m|

@@ -34,11 +34,8 @@ def to_phone(number)
     return ''
   end
 
-  phone = "+" + number.gsub(/[-\s\(\)+a-zA-Z]/,'')
-  if phone.length == 12 || phone.length == 11
-    return phone
-  end
-  return ""
+  phone = number.gsub(/[-\s\(\)+a-zA-Z]/,'')
+  return phone
 end
 
 def match_memes(message)
@@ -78,11 +75,11 @@ post '/memegen' do
     return twiml.text
   end
 
-  # Check if
-  case message.downcase
+  # Check if message has another recipient
+  case message
   when /,\s?to:\s?(.*)/
-    target = to_phone($1.strip)
-    message = message.gsub(/,\s?to:\s?(.*)/,'')
+    target = 1.strip
+    message = message.gsub(/,\s?to:\s?.*/,'')
   end
 
   meme_match = match_memes(message)
@@ -128,11 +125,27 @@ post '/memegen' do
     end
   end
 
-  if target == nil
-    return reply_to_message(image_url)
-  else
-    send_message(image_url, target)
-  end
+  if target != nil
+    account = #Need to supply your Twilio account
+    token = #Need to supply your Twilio token
+    from = #Need to supply Twilio phone number
 
-  return twiml.text
+    client = Twilio::REST::Client.new account, token
+
+    client.account.messages.create(
+    :from => from,
+    :to => target,
+    :body => "Here's your meme! Powered by Twilio MMS.",
+    :media_url => "#{image_url}"
+    )
+  else
+    twiml = Twilio::TwiML::Response.new do |r|
+      r.Message do |m|
+        m.Media "#{image_url}"
+        m.Body "Here's your meme! Powered by Twilio MMS."
+      end
+    end
+
+    return twiml.text
+  end
 end

@@ -111,6 +111,8 @@ post '/memegen' do
           m.Body "Here's your meme. Powered by Twilio MMS. The phone number provided was invalid."
         end
       end
+
+      return twiml.text
     end
   else
     twiml = Twilio::TwiML::Response.new do |r|

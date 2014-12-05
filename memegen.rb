@@ -90,6 +90,8 @@ post '/memegen' do
     end
   end
 
+  reply_body = "Here's your meme! Powered by Twilio MMS."
+
   if target != nil
     if Phonelib.valid_for_country?(target, 'us') || Phonelib.valid_for_country?(target, 'ca')
       account = ENV['TWILIO_ACCOUNT']
@@ -104,25 +106,18 @@ post '/memegen' do
       :body => "Here's your meme! Powered by Twilio MMS.",
       :media_url => "#{image_url}"
       )
+      return "";
     else
-      twiml = Twilio::TwiML::Response.new do |r|
-        r.Message do |m|
-          m.Media "#{image_url}"
-          m.Body "Here's your meme. Powered by Twilio MMS. The phone number provided was invalid."
-        end
-      end
-
-      return twiml.text
+      reply_body = reply_body + "The phone number provided was invalid."
     end
-  else
-    twiml = Twilio::TwiML::Response.new do |r|
-      r.Message do |m|
-        m.Media "#{image_url}"
-        m.Body "Here's your meme! Powered by Twilio MMS."
-      end
-    end
-
-    return twiml.text
   end
-  return ""
+
+  twiml = Twilio::TwiML::Response.new do |r|
+    r.Message do |m|
+      m.Media "#{image_url}"
+      m.Body reply_body
+    end
+  end
+
+  return twiml.text
 end

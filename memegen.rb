@@ -2,42 +2,6 @@ require 'sinatra'
 require 'twilio-ruby'
 require 'unirest'
 
-def send_message(image_url, target)
-  account = ENV['TWILIO_ACCOUNT']
-  token = String.try_convert(ENV['TWILIO_TOKEN'])
-  from = ENV['TWILIO_NUMBER']
-
-  client = Twilio::REST::Client.new account, token
-
-  client.account.messages.create(
-  :from => from,
-  :to => target,
-  :body => "Here's your meme! Powered by Twilio MMS.",
-  :media_url => "#{image_url}"
-  )
-end
-
-def reply_to_message(image_url)
-  twiml = Twilio::TwiML::Response.new do |r|
-    r.Message do |m|
-      m.Media "#{image_url}"
-      m.Body "Here's your meme! Powered by Twilio MMS."
-    end
-  end
-
-  return twiml.text
-end
-
-
-def to_phone(number)
-  if number == nil
-    return ''
-  end
-
-  phone = number.gsub(/[-\s\(\)+a-zA-Z]/,'')
-  return phone
-end
-
 def match_memes(message)
   case message.downcase
   when /^(one does not simply)(.*)/

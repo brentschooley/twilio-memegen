@@ -126,9 +126,9 @@ post '/memegen' do
   end
 
   if target != nil
-    account = #Need to supply your Twilio account
-    token = #Need to supply your Twilio token
-    from = #Need to supply Twilio phone number
+    account = ENV['TWILIO_ACCOUNT']
+    token = String.try_convert(ENV['TWILIO_TOKEN'])
+    from = ENV['TWILIO_NUMBER']
 
     client = Twilio::REST::Client.new account, token
 

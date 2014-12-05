@@ -78,7 +78,7 @@ post '/memegen' do
   # Check if message has another recipient
   case message
   when /,\s?to:\s?(.*)/
-    target = 1.strip
+    target = $1.strip
     message = message.gsub(/,\s?to:\s?.*/,'')
   end
 
@@ -134,7 +134,7 @@ post '/memegen' do
 
     client.account.messages.create(
     :from => from,
-    :to => "+14045393809",
+    :to => target,
     :body => "Here's your meme! Powered by Twilio MMS.",
     :media_url => "#{image_url}"
     )

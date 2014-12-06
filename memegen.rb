@@ -25,7 +25,7 @@ def match_memes(message)
   end
 end
 
-post '/memegen' do  
+post '/memegen' do
   content_type 'text/xml'
 
   message = params[:Body]
@@ -37,6 +37,13 @@ post '/memegen' do
     end
 
     return twiml.text
+  end
+
+  # Check if message has another recipient
+  case message
+  when /,\s?to:\s?(.*)/
+    target = $1.strip
+    message = message.gsub(/,\s?to:\s?.*/,'')
   end
 
   meme_match = match_memes(message)
@@ -62,10 +69,10 @@ post '/memegen' do
     response = Unirest.post "https://api.imgflip.com/caption_image",
       parameters:
       {
-        "username" => username, 
-        "password" => password, 
-        "template_id" => meme_match[:id], 
-        "text0" => meme_match[:top], 
+        "username" => username,
+        "password" => password,
+        "template_id" => meme_match[:id],
+        "text0" => meme_match[:top],
         "text1" => meme_match[:bottom]
       }
 
@@ -81,13 +88,29 @@ post '/memegen' do
       return twiml.text
     end
   end
-  
-  twiml = Twilio::TwiML::Response.new do |r|
-    r.Message do |m|
-      m.Media "#{image_url}"
-      m.Body "Here's your meme! Powered by Twilio MMS."
-    end
-  end
 
-  return twiml.text
+  if target != nil
+    account = ENV['TWILIO_ACCOUNT']
+    token = String.try_convert(ENV['TWILIO_TOKEN'])
+    from = ENV['TWILIO_NUMBER']
+
+    client = Twilio::REST::Client.new account, token
+
+    client.account.messages.create(
+    :from => from,
+    :to => target,
+    :body => "Here's your meme! Powered by Twilio MMS.",
+    :media_url => "#{image_url}"
+    )
+  else
+    twiml = Twilio::TwiML::Response.new do |r|
+      r.Message do |m|
+        m.Media "#{image_url}"
+        m.Body "Here's your meme! Powered by Twilio MMS."
+      end
+    end
+
+    return twiml.text
+  end
+  return ""
 end

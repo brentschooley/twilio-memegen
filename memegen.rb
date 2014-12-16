@@ -53,6 +53,8 @@ end
 post '/memegen' do
   content_type 'text/xml'
 
+  #Phonelib.default_country = "US"
+
   message = params[:Body]
   message = message.downcase.strip
 
@@ -126,7 +128,7 @@ post '/memegen' do
 
       client.account.messages.create(
       :from => from,
-      :to => Phonelib.parse(target).international,
+      :to => Phonelib.parse(target).national,
       :body => "Here's your meme! Powered by Twilio MMS.",
       :media_url => "#{image_url}"
       )

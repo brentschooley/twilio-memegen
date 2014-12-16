@@ -129,7 +129,7 @@ post '/memegen' do
 
       client.account.messages.create(
       :from => twilio_number,
-      :to => Phonelib.parse(target).national,
+      :to => target,
       :body => "Here's your meme! Powered by Twilio MMS.",
       :media_url => "#{image_url}"
       )

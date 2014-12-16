@@ -58,6 +58,8 @@ post '/memegen' do
   message = params[:Body]
   message = message.downcase.strip
 
+  twilio_number = params[:To]
+
   if message.eql? "list"
     twiml = Twilio::TwiML::Response.new do |r|
       r.Message "Supported memes: ___ all the ___, what if i told you ___, brace yourselves ____, ___ but that's none of my business, ____ all the ____, ___ ain't nobody got time for that, ___ we're dealing with a badass over here, ___ aaaand it's gone"
@@ -122,12 +124,11 @@ post '/memegen' do
     if Phonelib.valid_for_country?(target, 'us') || Phonelib.valid_for_country?(target, 'ca')
       account = ENV['TWILIO_ACCOUNT_SID']
       token = String.try_convert(ENV['TWILIO_AUTH_TOKEN'])
-      from = ENV['TWILIO_NUMBER']
 
       client = Twilio::REST::Client.new account, token
 
       client.account.messages.create(
-      :from => from,
+      :from => twilio_number,
       :to => Phonelib.parse(target).national,
       :body => "Here's your meme! Powered by Twilio MMS.",
       :media_url => "#{image_url}"

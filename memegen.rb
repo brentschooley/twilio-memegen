@@ -118,8 +118,8 @@ post '/memegen' do
 
   if target != nil
     if Phonelib.valid_for_country?(target, 'us') || Phonelib.valid_for_country?(target, 'ca')
-      account = ENV['TWILIO_ACCOUNT']
-      token = String.try_convert(ENV['TWILIO_TOKEN'])
+      account = ENV['TWILIO_ACCOUNT_SID']
+      token = String.try_convert(ENV['TWILIO_AUTH_TOKEN'])
       from = ENV['TWILIO_NUMBER']
 
       client = Twilio::REST::Client.new account, token
